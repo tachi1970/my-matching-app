@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
+import PasswordGate, { usePasswordGate } from "./components/PasswordGate";
 import ModeSelectorPage from "./pages/ModeSelectorPage";
 import LandingPage from "./pages/LandingPage";
 import AreaSearchPage from "./pages/AreaSearchPage";
@@ -15,6 +16,12 @@ import MyPage from "./pages/MyPage";
 import StudentRegisterPage from "./pages/StudentRegisterPage";
 
 export default function App() {
+  const { authenticated, unlock } = usePasswordGate();
+
+  if (!authenticated) {
+    return <PasswordGate onUnlock={unlock} />;
+  }
+
   return (
     <BrowserRouter>
       <AppProvider>
