@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overscroll-behavior: none;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f8f8f8;
+}
+
+#root {
+  width: 100%;
+  min-height: 100svh;
+}

@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(npx playwright *)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(curl -s http://localhost:5173/src/App.jsx)",
+      "Skill(run)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5174/)",
+      "WebFetch(domain:localhost)",
+      "Bash(curl -s http://localhost:5175/)",
+      "Bash(curl -s http://localhost:5175/src/pages/DashboardPage.jsx)",
+      "Bash(osascript -e ' *)",
+      "Bash(screencapture -x /tmp/dashboard_screenshot.png)",
+      "Bash(curl -s \"http://localhost:5175/src/pages/DashboardPage.jsx\")",
+      "Bash(curl -s \"http://localhost:5175/src/components/clinic/ClinicCard.jsx\")",
+      "Bash(curl -s \"http://localhost:5175/src/components/common/BottomTabBar.jsx\")",
+      "Bash(curl -s \"http://localhost:5175/src/pages/HomePage.jsx\")",
+      "Bash(curl -s \"http://localhost:5175/src/App.jsx\")",
+      "Bash(curl -s \"http://localhost:5175/src/components/common/BottomActionBar.jsx\")",
+      "Bash(curl -s \"http://localhost:5175/src/pages/ChatScreen.jsx\")",
+      "Bash(curl -s \"http://localhost:5175/src/pages/StudentRegisterPage.jsx\")",
+      "Bash(curl -s \"http://localhost:5175/src/components/common/LineConnectModal.jsx\")",
+      "Bash(curl -s \"http://localhost:5175/src/pages/LandingPage.jsx\")",
+      "Bash(node *)",
+      "Bash(git -C /Users/tanakachino/Desktop/my-matching-app status)"
+    ]
+  }
+}
