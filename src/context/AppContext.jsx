@@ -35,30 +35,63 @@ function load(key, fallback) {
   }
 }
 
+function save(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
 export function AppProvider({ children }) {
   const [mode, setModeRaw] = useState(() => load("dc_mode", "student"));
   const [clinicPlan, setClinicPlanRaw] = useState(() => load("dc_plan", "free"));
   const [studentProfile, setStudentProfile] = useState(() => load("dc_student", DEFAULT_STUDENT));
   const [clinicProfile, setClinicProfile] = useState(() => load("dc_clinic", DEFAULT_CLINIC));
+  const [matches, setMatches] = useState(() => load("dc_matches", []));
+  const [likeCount, setLikeCount] = useState(() => load("dc_like_count", 0));
 
   function setMode(m) {
     setModeRaw(m);
-    localStorage.setItem("dc_mode", JSON.stringify(m));
+    save("dc_mode", m);
   }
 
   function setClinicPlan(p) {
-    setClinicPlanRaw(p);
-    localStorage.setItem("dc_plan", JSON.stringify(p));
+    const next = typeof p === "function" ? p(clinicPlan) : p;
+    setClinicPlanRaw(next);
+    save("dc_plan", next);
   }
 
   function saveStudentProfile(data) {
     setStudentProfile(data);
-    localStorage.setItem("dc_student", JSON.stringify(data));
+    save("dc_student", data);
   }
 
   function saveClinicProfile(data) {
     setClinicProfile(data);
-    localStorage.setItem("dc_clinic", JSON.stringify(data));
+    save("dc_clinic", data);
+  }
+
+  function addMatch(partner) {
+    const newMatch = {
+      id: Date.now() + Math.random(),
+      name: partner.name,
+      sub: partner.prefecture
+        ? `${partner.prefecture}${partner.area ? `・${partner.area}` : ""}`
+        : partner.university
+          ? `${partner.university}・${partner.year}年`
+          : "",
+      initial: partner.avatarInitial || partner.initial || partner.name?.[0] || "?",
+      gradient: partner.bgColor || "from-teal-400 to-emerald-400",
+      lastMsg: "マッチングしました！メッセージを送ってみましょう。",
+      time: "たった今",
+      unread: 1,
+    };
+    const updated = [newMatch, ...matches];
+    setMatches(updated);
+    save("dc_matches", updated);
+  }
+
+  function addLike() {
+    const next = likeCount + 1;
+    setLikeCount(next);
+    save("dc_like_count", next);
   }
 
   return (
@@ -67,6 +100,8 @@ export function AppProvider({ children }) {
       clinicPlan, setClinicPlan,
       studentProfile, saveStudentProfile,
       clinicProfile, saveClinicProfile,
+      matches, addMatch,
+      likeCount, addLike,
     }}>
       {children}
     </AppContext.Provider>

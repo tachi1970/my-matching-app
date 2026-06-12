@@ -107,7 +107,7 @@ export default function PricingPage() {
               disabled={clinicPlan === "free"}
               className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-500 text-sm font-bold disabled:opacity-50 disabled:cursor-default hover:border-gray-300 transition-colors"
             >
-              {clinicPlan === "free" ? "現在のプラン" : "フリーに戻す（デモ）"}
+              {clinicPlan === "free" ? "現在のプラン" : "フリープランに変更"}
             </button>
           </motion.div>
 
@@ -157,16 +157,32 @@ export default function PricingPage() {
             >
               {clinicPlan === "standard"
                 ? "✓ 現在のプラン"
-                : "このプランを選択（デモ）"}
+                : "このプランを選択"}
             </motion.button>
-
-            {clinicPlan !== "standard" && (
-              <p className="text-center text-violet-200 text-xs mt-3">
-                ※ デモのため実際の課金は発生しません
-              </p>
-            )}
           </motion.div>
         </div>
+
+        {/* Enterprise CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mt-6 bg-white rounded-2xl border border-gray-200 p-5 shadow-sm"
+        >
+          <p className="text-xs font-bold text-gray-400 tracking-widest mb-2">ENTERPRISE</p>
+          <h3 className="font-black text-gray-900 text-base mb-1">
+            複数医院・バックオフィス会社様向け
+          </h3>
+          <p className="text-gray-500 text-sm leading-relaxed mb-4">
+            10医院以上の一括導入、請求書払い、専任サポートをご希望の方は個別にご相談ください。グループ医院・経営支援会社向けの特別プランをご用意しています。
+          </p>
+          <button
+            onClick={() => {}}
+            className="w-full py-3 rounded-xl border-2 border-gray-800 text-gray-800 text-sm font-bold hover:bg-gray-800 hover:text-white transition-all"
+          >
+            導入相談・お見積りはこちら →
+          </button>
+        </motion.div>
 
         {/* Note */}
         <p className="text-center text-gray-400 text-xs mt-8 leading-relaxed">

@@ -133,7 +133,7 @@ export default function ModeSelectorPage() {
       </div>
 
       <p className="text-center text-gray-300 text-xs pb-8">
-        © 2025 DentConnect, Inc.
+        © 2026 DentConnect, Inc.
       </p>
     </div>
   );

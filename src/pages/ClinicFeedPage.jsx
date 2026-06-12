@@ -17,7 +17,7 @@ const UNIV_TYPE_STYLE = {
 
 export default function ClinicFeedPage() {
   const navigate = useNavigate();
-  const { clinicPlan } = useApp();
+  const { clinicPlan, addMatch, addLike } = useApp();
   const [showScoutPaywall, setShowScoutPaywall] = useState(false);
 
   const {
@@ -38,7 +38,12 @@ export default function ClinicFeedPage() {
     like,
     skip,
     dismissMatch,
-  } = useActions(filtered, filterKey);
+  } = useActions(filtered, filterKey, {
+    onMatch: (student) => {
+      addMatch(student);
+      addLike();
+    },
+  });
 
   function handleScout() {
     if (clinicPlan === "free") {
@@ -55,11 +60,6 @@ export default function ClinicFeedPage() {
     });
   }
 
-  function handleDismiss() {
-    dismissMatch();
-  }
-
-  // FilterPanel グループ定義
   const filterGroups = [
     {
       label: "大学区分",
@@ -87,14 +87,12 @@ export default function ClinicFeedPage() {
     <div className="flex flex-col h-svh max-w-md mx-auto bg-white">
       <Header />
 
-      {/* Sub-header */}
       <div className="flex-shrink-0 px-4 py-2 bg-violet-50 border-b border-violet-100">
         <p className="text-xs text-violet-600 font-semibold">
           🏥 医院モード ― 見学に来てほしい学生を探す
         </p>
       </div>
 
-      {/* フィルターパネル */}
       <FilterPanel
         groups={filterGroups}
         activeCount={activeCount}
@@ -102,7 +100,6 @@ export default function ClinicFeedPage() {
         accentColor="violet"
       />
 
-      {/* カードエリア */}
       <div className="flex-1 relative overflow-hidden">
         {hasMore && current ? (
           <AnimatePresence mode="wait">
@@ -125,7 +122,6 @@ export default function ClinicFeedPage() {
         )}
       </div>
 
-      {/* アクションバー（タブバーの上に固定） */}
       {hasMore && current && (
         <div className="fixed bottom-14 left-0 right-0 z-40 flex justify-center">
           <div className="w-full max-w-md bg-white/90 backdrop-blur-md border-t border-gray-100 px-8 py-4 flex items-center justify-between">
@@ -154,14 +150,13 @@ export default function ClinicFeedPage() {
           </div>
         </div>
       )}
-      {/* タブバー用スペーサー */}
       <div className="flex-shrink-0 h-14" />
 
       <MatchPopup
         visible={showMatch}
         partnerName={current?.name + " さん"}
         onGoToChat={handleGoToChat}
-        onDismiss={handleDismiss}
+        onDismiss={dismissMatch}
       />
       <BottomTabBar />
 
@@ -216,12 +211,9 @@ export default function ClinicFeedPage() {
   );
 }
 
-// ──────────────── StudentCard ────────────────
-
 function StudentCard({ student }) {
   return (
     <div className="p-4">
-      {/* アバターカード */}
       <div
         className={`w-full h-52 rounded-2xl bg-gradient-to-br ${student.bgColor} flex flex-col items-center justify-center mb-5 relative overflow-hidden`}
       >
@@ -243,7 +235,6 @@ function StudentCard({ student }) {
         <p className="text-white font-bold text-xl">{student.name}</p>
         <p className="text-white/80 text-sm">{student.year}年生</p>
 
-        {/* 大学区分バッジ */}
         <div className="absolute top-3 left-3">
           <span
             className={`text-xs font-bold px-2.5 py-1 rounded-full border bg-white/90 ${
@@ -255,19 +246,13 @@ function StudentCard({ student }) {
         </div>
       </div>
 
-      {/* 詳細情報 */}
       <div className="space-y-5">
-        {/* 大学 */}
         <InfoRow label="大学">
           <p className="text-gray-700 text-sm">🎓 {student.university}</p>
         </InfoRow>
-
-        {/* 出身地 */}
         <InfoRow label="出身地">
           <p className="text-gray-700 text-sm">📍 {student.prefectureOrigin}</p>
         </InfoRow>
-
-        {/* 興味・関心 */}
         <InfoRow label="興味・関心">
           <div className="flex flex-wrap gap-2">
             {student.interests.map((item) => (
@@ -275,8 +260,6 @@ function StudentCard({ student }) {
             ))}
           </div>
         </InfoRow>
-
-        {/* 将来働きたいエリア */}
         <InfoRow label="将来働きたいエリア">
           <div className="flex flex-wrap gap-2">
             {student.desiredAreas.map((area) => (
@@ -284,8 +267,6 @@ function StudentCard({ student }) {
             ))}
           </div>
         </InfoRow>
-
-        {/* インターン希望日 */}
         {student.availableDates?.length > 0 && (
           <InfoRow label="インターン希望日程">
             <div className="flex flex-wrap gap-2">
@@ -300,8 +281,6 @@ function StudentCard({ student }) {
             </div>
           </InfoRow>
         )}
-
-        {/* 自己PR */}
         <InfoRow label="自己PR">
           <p className="text-gray-700 text-sm leading-relaxed bg-gray-50 rounded-xl p-3 border border-gray-100">
             {student.message}
@@ -325,7 +304,6 @@ function Tag({ children, color }) {
   const styles = {
     violet: "bg-violet-50 text-violet-700 border-violet-200",
     teal: "bg-teal-50 text-teal-700 border-teal-200",
-    blue: "bg-blue-50 text-blue-700 border-blue-200",
   };
   return (
     <span className={`text-xs font-medium px-3 py-1 rounded-full border ${styles[color] ?? styles.violet}`}>

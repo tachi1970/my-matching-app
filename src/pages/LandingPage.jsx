@@ -164,7 +164,7 @@ export default function LandingPage() {
         </button>
 
         <p className="text-gray-300 text-xs mt-8">
-          © 2025 DentConnect, Inc. All rights reserved.
+          © 2026 DentConnect, Inc. All rights reserved.
         </p>
       </section>
 

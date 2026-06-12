@@ -4,53 +4,53 @@ import Header from '../components/common/Header';
 
 // 47都道府県 × (col, row) タイルマップ座標 + ダミーデータ
 const PREF_DATA = [
-  { name: '北海道', short: '北海', col: 9, row: 0,  clinics: 18, students: 48 },
-  { name: '青森県', short: '青森', col: 8, row: 1,  clinics: 6,  students: 16 },
-  { name: '秋田県', short: '秋田', col: 7, row: 2,  clinics: 5,  students: 13 },
-  { name: '岩手県', short: '岩手', col: 9, row: 2,  clinics: 5,  students: 14 },
-  { name: '山形県', short: '山形', col: 8, row: 3,  clinics: 5,  students: 14 },
-  { name: '宮城県', short: '宮城', col: 9, row: 3,  clinics: 12, students: 32 },
-  { name: '新潟県', short: '新潟', col: 7, row: 4,  clinics: 8,  students: 22 },
-  { name: '福島県', short: '福島', col: 8, row: 4,  clinics: 8,  students: 22 },
-  { name: '石川県', short: '石川', col: 6, row: 5,  clinics: 7,  students: 19 },
-  { name: '富山県', short: '富山', col: 7, row: 5,  clinics: 6,  students: 17 },
-  { name: '群馬県', short: '群馬', col: 8, row: 5,  clinics: 9,  students: 24 },
-  { name: '栃木県', short: '栃木', col: 9, row: 5,  clinics: 9,  students: 25 },
-  { name: '茨城県', short: '茨城', col: 10, row: 5, clinics: 11, students: 30 },
-  { name: '鳥取県', short: '鳥取', col: 4, row: 6,  clinics: 4,  students: 11 },
-  { name: '島根県', short: '島根', col: 3, row: 6,  clinics: 4,  students: 11 },
-  { name: '福井県', short: '福井', col: 6, row: 6,  clinics: 5,  students: 14 },
-  { name: '岐阜県', short: '岐阜', col: 7, row: 6,  clinics: 9,  students: 24 },
-  { name: '長野県', short: '長野', col: 8, row: 6,  clinics: 8,  students: 22 },
-  { name: '埼玉県', short: '埼玉', col: 9, row: 6,  clinics: 28, students: 75 },
-  { name: '千葉県', short: '千葉', col: 10, row: 6, clinics: 24, students: 65 },
-  { name: '兵庫県', short: '兵庫', col: 4, row: 7,  clinics: 19, students: 52 },
-  { name: '京都府', short: '京都', col: 5, row: 7,  clinics: 15, students: 42 },
-  { name: '滋賀県', short: '滋賀', col: 6, row: 7,  clinics: 7,  students: 18 },
-  { name: '愛知県', short: '愛知', col: 7, row: 7,  clinics: 30, students: 82 },
-  { name: '山梨県', short: '山梨', col: 8, row: 7,  clinics: 5,  students: 14 },
-  { name: '東京都', short: '東京', col: 9, row: 7,  clinics: 45, students: 120 },
-  { name: '岡山県', short: '岡山', col: 4, row: 8,  clinics: 11, students: 29 },
-  { name: '大阪府', short: '大阪', col: 5, row: 8,  clinics: 36, students: 98 },
-  { name: '奈良県', short: '奈良', col: 6, row: 8,  clinics: 7,  students: 19 },
-  { name: '三重県', short: '三重', col: 7, row: 8,  clinics: 7,  students: 19 },
-  { name: '静岡県', short: '静岡', col: 8, row: 8,  clinics: 14, students: 38 },
-  { name: '神奈川県', short: '神奈', col: 9, row: 8, clinics: 32, students: 88 },
-  { name: '広島県', short: '広島', col: 3, row: 8,  clinics: 14, students: 38 },
-  { name: '山口県', short: '山口', col: 2, row: 8,  clinics: 7,  students: 19 },
-  { name: '和歌山県', short: '和歌', col: 5, row: 9, clinics: 5, students: 14 },
-  { name: '香川県', short: '香川', col: 4, row: 9,  clinics: 6,  students: 17 },
-  { name: '徳島県', short: '徳島', col: 5, row: 10, clinics: 5,  students: 14 },
-  { name: '愛媛県', short: '愛媛', col: 3, row: 10, clinics: 8,  students: 22 },
-  { name: '高知県', short: '高知', col: 4, row: 10, clinics: 5,  students: 13 },
-  { name: '佐賀県', short: '佐賀', col: 0, row: 10, clinics: 5,  students: 14 },
-  { name: '福岡県', short: '福岡', col: 1, row: 10, clinics: 28, students: 78 },
-  { name: '大分県', short: '大分', col: 2, row: 10, clinics: 7,  students: 19 },
-  { name: '長崎県', short: '長崎', col: 0, row: 11, clinics: 7,  students: 20 },
-  { name: '熊本県', short: '熊本', col: 1, row: 11, clinics: 10, students: 28 },
-  { name: '宮崎県', short: '宮崎', col: 2, row: 11, clinics: 6,  students: 17 },
-  { name: '鹿児島県', short: '鹿児', col: 1, row: 12, clinics: 8, students: 22 },
-  { name: '沖縄県', short: '沖縄', col: 0, row: 13, clinics: 9,  students: 25 },
+  { name: '北海道', short: '北海', col: 9, row: 0,  clinics: 36, students: 96 },
+  { name: '青森県', short: '青森', col: 8, row: 1,  clinics: 12, students: 32 },
+  { name: '秋田県', short: '秋田', col: 7, row: 2,  clinics: 10, students: 26 },
+  { name: '岩手県', short: '岩手', col: 9, row: 2,  clinics: 10, students: 28 },
+  { name: '山形県', short: '山形', col: 8, row: 3,  clinics: 10, students: 28 },
+  { name: '宮城県', short: '宮城', col: 9, row: 3,  clinics: 24, students: 64 },
+  { name: '新潟県', short: '新潟', col: 7, row: 4,  clinics: 16, students: 44 },
+  { name: '福島県', short: '福島', col: 8, row: 4,  clinics: 16, students: 44 },
+  { name: '石川県', short: '石川', col: 6, row: 5,  clinics: 14, students: 38 },
+  { name: '富山県', short: '富山', col: 7, row: 5,  clinics: 12, students: 34 },
+  { name: '群馬県', short: '群馬', col: 8, row: 5,  clinics: 18, students: 48 },
+  { name: '栃木県', short: '栃木', col: 9, row: 5,  clinics: 18, students: 50 },
+  { name: '茨城県', short: '茨城', col: 10, row: 5, clinics: 22, students: 60 },
+  { name: '鳥取県', short: '鳥取', col: 4, row: 6,  clinics: 8,  students: 22 },
+  { name: '島根県', short: '島根', col: 3, row: 6,  clinics: 8,  students: 22 },
+  { name: '福井県', short: '福井', col: 6, row: 6,  clinics: 10, students: 28 },
+  { name: '岐阜県', short: '岐阜', col: 7, row: 6,  clinics: 18, students: 48 },
+  { name: '長野県', short: '長野', col: 8, row: 6,  clinics: 16, students: 44 },
+  { name: '埼玉県', short: '埼玉', col: 9, row: 6,  clinics: 55, students: 150 },
+  { name: '千葉県', short: '千葉', col: 10, row: 6, clinics: 48, students: 130 },
+  { name: '兵庫県', short: '兵庫', col: 4, row: 7,  clinics: 38, students: 104 },
+  { name: '京都府', short: '京都', col: 5, row: 7,  clinics: 30, students: 84 },
+  { name: '滋賀県', short: '滋賀', col: 6, row: 7,  clinics: 14, students: 36 },
+  { name: '愛知県', short: '愛知', col: 7, row: 7,  clinics: 59, students: 164 },
+  { name: '山梨県', short: '山梨', col: 8, row: 7,  clinics: 10, students: 28 },
+  { name: '東京都', short: '東京', col: 9, row: 7,  clinics: 89, students: 240 },
+  { name: '岡山県', short: '岡山', col: 4, row: 8,  clinics: 22, students: 58 },
+  { name: '大阪府', short: '大阪', col: 5, row: 8,  clinics: 71, students: 196 },
+  { name: '奈良県', short: '奈良', col: 6, row: 8,  clinics: 14, students: 38 },
+  { name: '三重県', short: '三重', col: 7, row: 8,  clinics: 14, students: 38 },
+  { name: '静岡県', short: '静岡', col: 8, row: 8,  clinics: 28, students: 76 },
+  { name: '神奈川県', short: '神奈', col: 9, row: 8, clinics: 63, students: 176 },
+  { name: '広島県', short: '広島', col: 3, row: 8,  clinics: 28, students: 76 },
+  { name: '山口県', short: '山口', col: 2, row: 8,  clinics: 14, students: 38 },
+  { name: '和歌山県', short: '和歌', col: 5, row: 9, clinics: 10, students: 28 },
+  { name: '香川県', short: '香川', col: 4, row: 9,  clinics: 12, students: 34 },
+  { name: '徳島県', short: '徳島', col: 5, row: 10, clinics: 10, students: 28 },
+  { name: '愛媛県', short: '愛媛', col: 3, row: 10, clinics: 16, students: 44 },
+  { name: '高知県', short: '高知', col: 4, row: 10, clinics: 10, students: 26 },
+  { name: '佐賀県', short: '佐賀', col: 0, row: 10, clinics: 10, students: 28 },
+  { name: '福岡県', short: '福岡', col: 1, row: 10, clinics: 55, students: 156 },
+  { name: '大分県', short: '大分', col: 2, row: 10, clinics: 14, students: 38 },
+  { name: '長崎県', short: '長崎', col: 0, row: 11, clinics: 14, students: 40 },
+  { name: '熊本県', short: '熊本', col: 1, row: 11, clinics: 20, students: 56 },
+  { name: '宮崎県', short: '宮崎', col: 2, row: 11, clinics: 12, students: 34 },
+  { name: '鹿児島県', short: '鹿児', col: 1, row: 12, clinics: 16, students: 44 },
+  { name: '沖縄県', short: '沖縄', col: 0, row: 13, clinics: 18, students: 50 },
 ];
 
 const COLS = 11;
@@ -59,34 +59,34 @@ const CELL = 34;
 const GAP = 2;
 
 function clinicColor(v) {
-  if (v >= 30) return { bg: '#0f766e', text: '#fff' };
-  if (v >= 20) return { bg: '#14b8a6', text: '#fff' };
-  if (v >= 11) return { bg: '#5eead4', text: '#0f5f5a' };
-  if (v >= 6)  return { bg: '#99f6e4', text: '#0f5f5a' };
+  if (v >= 60) return { bg: '#0f766e', text: '#fff' };
+  if (v >= 35) return { bg: '#14b8a6', text: '#fff' };
+  if (v >= 20) return { bg: '#5eead4', text: '#0f5f5a' };
+  if (v >= 10) return { bg: '#99f6e4', text: '#0f5f5a' };
   return       { bg: '#f0fdfa', text: '#0f766e' };
 }
 
 function studentColor(v) {
-  if (v >= 80) return { bg: '#6d28d9', text: '#fff' };
-  if (v >= 50) return { bg: '#8b5cf6', text: '#fff' };
-  if (v >= 30) return { bg: '#c4b5fd', text: '#4c1d95' };
-  if (v >= 15) return { bg: '#ddd6fe', text: '#4c1d95' };
-  return       { bg: '#f5f3ff', text: '#6d28d9' };
+  if (v >= 150) return { bg: '#6d28d9', text: '#fff' };
+  if (v >= 90)  return { bg: '#8b5cf6', text: '#fff' };
+  if (v >= 50)  return { bg: '#c4b5fd', text: '#4c1d95' };
+  if (v >= 25)  return { bg: '#ddd6fe', text: '#4c1d95' };
+  return        { bg: '#f5f3ff', text: '#6d28d9' };
 }
 
 const CLINIC_LEGEND = [
-  { bg: '#f0fdfa', label: '1–5' },
-  { bg: '#99f6e4', label: '6–10' },
-  { bg: '#5eead4', label: '11–19' },
-  { bg: '#14b8a6', label: '20–29' },
-  { bg: '#0f766e', label: '30+' },
+  { bg: '#f0fdfa', label: '1–9' },
+  { bg: '#99f6e4', label: '10–19' },
+  { bg: '#5eead4', label: '20–34' },
+  { bg: '#14b8a6', label: '35–59' },
+  { bg: '#0f766e', label: '60+' },
 ];
 const STUDENT_LEGEND = [
-  { bg: '#f5f3ff', label: '1–14' },
-  { bg: '#ddd6fe', label: '15–29' },
-  { bg: '#c4b5fd', label: '30–49' },
-  { bg: '#8b5cf6', label: '50–79' },
-  { bg: '#6d28d9', label: '80+' },
+  { bg: '#f5f3ff', label: '1–24' },
+  { bg: '#ddd6fe', label: '25–49' },
+  { bg: '#c4b5fd', label: '50–89' },
+  { bg: '#8b5cf6', label: '90–149' },
+  { bg: '#6d28d9', label: '150+' },
 ];
 
 const totalClinics  = PREF_DATA.reduce((s, p) => s + p.clinics, 0);

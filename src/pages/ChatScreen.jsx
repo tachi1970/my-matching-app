@@ -9,7 +9,41 @@ const clock = () =>
 
 const FREE_LIMIT = 3;
 
-function buildInitialMessages(mode) {
+function getReply(text) {
+  const t = text;
+  if (/(見学|いつ|日程|何日|スケジュール|候補|空き|伺|おじゃま)/.test(t))
+    return "ご都合はいかがでしょうか？土日も対応しておりますので、ご希望の日程をいくつか教えていただければ調整します！";
+  if (/(給与|初任給|お給料|年収|待遇|福利厚生|月給|手取り)/.test(t))
+    return "給与の詳細については、ぜひ一度お会いしてから詳しくお話しさせてください。見学後にご案内できます😊";
+  if (/(場所|アクセス|最寄り|駅|住所|どこ|交通|行き方)/.test(t))
+    return "最寄り駅から徒歩5分ほどです！見学確定後に詳しいご案内をお送りしますね。お気軽にどうぞ🏥";
+  if (/(雰囲気|スタッフ|先生|院内|チーム|人間関係|職場|働き|環境)/.test(t))
+    return "スタッフ同士の仲がとてもよく、明るい職場です！実際に見て感じてもらうのが一番なので、ぜひ気軽に来てください✨";
+  if (/(技術|勉強|インビザ|インプラント|矯正|学べ|研修|スキル|成長)/.test(t))
+    return "当院では幅広い治療に携わりながら成長できます。研修制度も充実しているので、安心してスキルアップできますよ！";
+  if (/(ありがとう|よろしく|はじめまして|こんにちは|よろしくお願い)/.test(t))
+    return "こちらこそよろしくお願いします！どんなことでも気軽に聞いてくださいね😊";
+  if (/(何人|スタッフ数|歯科医師|衛生士|人数|規模)/.test(t))
+    return "現在、歯科医師3名・衛生士5名・助手2名のチームで診療しています。アットホームな規模感で、連携がしやすい環境です！";
+  const defaults = [
+    "ご質問ありがとうございます！ぜひ見学でもっと詳しくお話しできればと思います😊",
+    "おっしゃる通りですね。実際にお会いしてお話しするのが一番かと思いますので、ぜひ一度いらしてください✨",
+    "ご連絡ありがとうございます。引き続きよろしくお願いします！何かあればお気軽にどうぞ。",
+  ];
+  return defaults[Math.floor(Math.random() * defaults.length)];
+}
+
+function buildInitialMessages(mode, isSuperLike) {
+  if (isSuperLike) {
+    return [
+      {
+        id: 1,
+        sender: "partner",
+        text: "⭐ スーパーライクありがとうございます！とても嬉しいです。ぜひ一度見学にいらしてください、スタッフ一同お待ちしています！",
+        time: clock(),
+      },
+    ];
+  }
   const text =
     mode === "clinic"
       ? "マッチングありがとうございます！DentConnectで登録している歯科大生です。ぜひ一度、医院の見学にお伺いしたいです！"
@@ -24,17 +58,16 @@ export default function ChatScreen() {
 
   const fallback = mode === "clinic" ? "田中 花子 さん" : "さくら歯科クリニック 院長";
   const partnerName = location.state?.partnerName ?? fallback;
+  const isSuperLike = location.state?.isSuperLike ?? false;
 
-  const [messages, setMessages] = useState(() => buildInitialMessages(mode));
+  const [messages, setMessages] = useState(() => buildInitialMessages(mode, isSuperLike));
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const bottomRef = useRef(null);
 
-  // 自分が送ったメッセージ数
   const sentCount = messages.filter((m) => m.sender === "me").length;
   const isClinicFree = mode === "clinic" && clinicPlan === "free";
   const isPaywalled = isClinicFree && sentCount >= FREE_LIMIT;
-  // null = 制限なし、n = 残り n 通
   const freeRemaining = isClinicFree ? Math.max(0, FREE_LIMIT - sentCount) : null;
 
   useEffect(() => {
@@ -56,12 +89,12 @@ export default function ChatScreen() {
         {
           id: Date.now() + 1,
           sender: "partner",
-          text: "ありがとうございます！ぜひお待ちしています。詳細はまたこちらでご連絡しますね😊",
+          text: getReply(text),
           time: clock(),
         },
       ]);
       setIsSending(false);
-    }, 1000);
+    }, 1000 + Math.random() * 600);
   }
 
   return (
@@ -74,7 +107,7 @@ export default function ChatScreen() {
         >
           ←
         </button>
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-emerald-400 flex items-center justify-center flex-shrink-0 shadow-sm">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${isSuperLike ? "bg-gradient-to-br from-yellow-400 to-amber-500" : "bg-gradient-to-br from-teal-400 to-emerald-400"}`}>
           <img
             src="/mushi_icon.png"
             alt=""
@@ -84,14 +117,17 @@ export default function ChatScreen() {
               e.target.nextSibling.style.display = "block";
             }}
           />
-          <span className="text-white text-base" style={{ display: "none" }}>🦷</span>
+          <span className="text-white text-base" style={{ display: "none" }}>
+            {isSuperLike ? "⭐" : "🦷"}
+          </span>
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-gray-900 text-sm truncate">{partnerName}</p>
-          <p className="text-xs text-teal-500 font-medium">オンライン</p>
+          <p className={`text-xs font-medium ${isSuperLike ? "text-amber-500" : "text-teal-500"}`}>
+            {isSuperLike ? "⭐ スーパーマッチ" : "オンライン"}
+          </p>
         </div>
 
-        {/* 無料残数インジケーター（ヘッダー右） */}
         {isClinicFree && !isPaywalled && (
           <div
             className={`text-xs font-bold px-2.5 py-1 rounded-full border flex-shrink-0 ${
@@ -120,8 +156,8 @@ export default function ChatScreen() {
             }`}
           >
             {msg.sender === "partner" && (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-emerald-400 flex items-center justify-center flex-shrink-0 text-sm shadow-sm">
-                🦷
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm shadow-sm ${isSuperLike ? "bg-gradient-to-br from-yellow-400 to-amber-500" : "bg-gradient-to-br from-teal-400 to-emerald-400"}`}>
+                {isSuperLike ? "⭐" : "🦷"}
               </div>
             )}
             <div
@@ -143,7 +179,6 @@ export default function ChatScreen() {
           </motion.div>
         ))}
 
-        {/* 入力中インジケーター */}
         <AnimatePresence>
           {isSending && (
             <motion.div
@@ -152,8 +187,8 @@ export default function ChatScreen() {
               exit={{ opacity: 0 }}
               className="flex items-end gap-2"
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-emerald-400 flex items-center justify-center text-sm">
-                🦷
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${isSuperLike ? "bg-gradient-to-br from-yellow-400 to-amber-500" : "bg-gradient-to-br from-teal-400 to-emerald-400"}`}>
+                {isSuperLike ? "⭐" : "🦷"}
               </div>
               <div className="bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3 flex gap-1">
                 {[0, 1, 2].map((i) => (
@@ -174,9 +209,7 @@ export default function ChatScreen() {
       {/* 入力エリア or ペイウォール */}
       {isPaywalled ? (
         <div className="relative flex-shrink-0">
-          {/* グラデーションフェード */}
           <div className="absolute bottom-full left-0 right-0 h-28 bg-gradient-to-t from-white via-white/70 to-transparent pointer-events-none" />
-          {/* ペイウォールカード */}
           <div className="bg-white border-t border-gray-100 px-6 pt-5 pb-8 text-center">
             <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center mx-auto mb-3 text-2xl">
               🔒
@@ -199,7 +232,6 @@ export default function ChatScreen() {
         </div>
       ) : (
         <div className="flex-shrink-0 bg-white border-t border-gray-100">
-          {/* 残通数バー（clinic + free のみ） */}
           {isClinicFree && freeRemaining !== null && (
             <div
               className={`flex items-center justify-between px-4 py-2 border-b text-xs font-medium ${

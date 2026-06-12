@@ -1,15 +1,17 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "../context/AppContext";
 import BottomTabBar from "../components/common/BottomTabBar";
 
 export default function MyPage() {
-  const { mode, setMode, clinicPlan, setClinicPlan, studentProfile, clinicProfile } = useApp();
+  const { mode, setMode, clinicPlan, studentProfile, clinicProfile } = useApp();
   const navigate = useNavigate();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [comingSoonLabel, setComingSoonLabel] = useState(null);
 
   const isStudent = mode === "student";
 
-  // 学生プロフィール表示用
   const sName = `${studentProfile.lastName || "田中"} ${studentProfile.firstName || "花子"}`;
   const sInitial = studentProfile.lastName?.[0] || "田";
   const sUniv = studentProfile.university || "九州歯科大学";
@@ -19,7 +21,6 @@ export default function MyPage() {
   const sInterests = studentProfile.interests?.length > 0 ? studentProfile.interests : ["小児歯科", "予防歯科"];
   const sDesiredAreas = studentProfile.desiredAreas?.length > 0 ? studentProfile.desiredAreas : ["福岡県"];
 
-  // 医院プロフィール表示用
   const cClinicName = clinicProfile.name || "たなか歯科クリニック";
   const cDirectorName = clinicProfile.directorName || "田中 誠一";
   const cInitial = clinicProfile.directorName?.[0] || "田";
@@ -30,9 +31,13 @@ export default function MyPage() {
     : "東京都 渋谷区";
   const cSkills = clinicProfile.skills?.length > 0 ? clinicProfile.skills : ["インビザライン", "インプラント", "小児歯科"];
 
+  function showComingSoon(label) {
+    setComingSoonLabel(label);
+    setTimeout(() => setComingSoonLabel(null), 2000);
+  }
+
   return (
     <div className="flex flex-col min-h-svh max-w-md mx-auto bg-gray-50">
-      {/* ヘッダー */}
       <header className="flex-shrink-0 px-4 pt-12 pb-4 bg-white border-b border-gray-100">
         <h1 className="text-xl font-black text-gray-900">マイページ</h1>
         <p className="text-xs text-gray-400 mt-0.5">プロフィール・設定</p>
@@ -131,13 +136,6 @@ export default function MyPage() {
                 </button>
               )}
             </div>
-            {/* デモ切替 */}
-            <button
-              onClick={() => setClinicPlan(p => p === "free" ? "standard" : "free")}
-              className="mt-2 text-xs text-gray-400 underline"
-            >
-              デモ: プランを切り替える
-            </button>
           </motion.div>
         )}
 
@@ -147,11 +145,10 @@ export default function MyPage() {
           className="bg-white rounded-2xl shadow-sm border border-gray-100 divide-y divide-gray-50"
         >
           <p className="px-4 pt-3 pb-1 text-xs font-bold text-gray-400 uppercase tracking-wider">設定</p>
-
-          <MenuItem icon="🔔" label="通知設定" />
-          <MenuItem icon="🔒" label="プライバシー設定" />
-          <MenuItem icon="📱" label="アプリ情報" sub="ver 1.0.0" />
-          <MenuItem icon="❓" label="ヘルプ・お問い合わせ" />
+          <MenuItem icon="🔔" label="通知設定" badge="準備中" onClick={() => showComingSoon("通知設定")} />
+          <MenuItem icon="🔒" label="プライバシー設定" badge="準備中" onClick={() => showComingSoon("プライバシー設定")} />
+          <MenuItem icon="📱" label="アプリ情報" sub="ver 1.2.0" />
+          <MenuItem icon="❓" label="ヘルプ・お問い合わせ" badge="準備中" onClick={() => showComingSoon("ヘルプ・お問い合わせ")} />
           <MenuItem icon="📊" label="全国ダッシュボード" onClick={() => navigate("/dashboard")} />
         </motion.div>
 
@@ -182,16 +179,60 @@ export default function MyPage() {
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.18 }}
           className="pb-2"
         >
-          <button
-            onClick={() => navigate("/")}
-            className="w-full py-3 text-sm font-bold text-red-400 bg-white rounded-2xl border border-red-100 shadow-sm"
-          >
-            ログアウト
-          </button>
+          <AnimatePresence mode="wait">
+            {showLogoutConfirm ? (
+              <motion.div
+                key="confirm"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="flex gap-2"
+              >
+                <button
+                  onClick={() => navigate("/")}
+                  className="flex-1 py-3 text-sm font-bold text-white bg-red-400 rounded-2xl border border-red-300 shadow-sm"
+                >
+                  ログアウトする
+                </button>
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 py-3 text-sm font-bold text-gray-600 bg-white rounded-2xl border border-gray-200 shadow-sm"
+                >
+                  キャンセル
+                </button>
+              </motion.div>
+            ) : (
+              <motion.button
+                key="logout"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowLogoutConfirm(true)}
+                className="w-full py-3 text-sm font-bold text-red-400 bg-white rounded-2xl border border-red-100 shadow-sm"
+              >
+                ログアウト
+              </motion.button>
+            )}
+          </AnimatePresence>
         </motion.div>
 
-        <p className="text-center text-xs text-gray-300 pb-2">© 2025 DentConnect, Inc.</p>
+        <p className="text-center text-xs text-gray-300 pb-2">© 2026 DentConnect, Inc.</p>
       </div>
+
+      {/* 準備中トースト */}
+      <AnimatePresence>
+        {comingSoonLabel && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap"
+          >
+            {comingSoonLabel}は近日公開予定です
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <BottomTabBar />
     </div>
@@ -214,7 +255,7 @@ function InfoRow({ icon, label, children }) {
   );
 }
 
-function MenuItem({ icon, label, sub, onClick }) {
+function MenuItem({ icon, label, sub, badge, onClick }) {
   return (
     <button
       onClick={onClick}
@@ -222,6 +263,11 @@ function MenuItem({ icon, label, sub, onClick }) {
     >
       <span className="text-base">{icon}</span>
       <span className="flex-1 text-sm font-semibold text-gray-700">{label}</span>
+      {badge && (
+        <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">
+          {badge}
+        </span>
+      )}
       {sub && <span className="text-xs text-gray-400">{sub}</span>}
       <span className="text-gray-300 text-lg">›</span>
     </button>

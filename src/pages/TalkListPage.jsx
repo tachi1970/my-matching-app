@@ -3,29 +3,36 @@ import { motion } from "framer-motion";
 import { useApp } from "../context/AppContext";
 import BottomTabBar from "../components/common/BottomTabBar";
 
-const STUDENT_CHATS = [
-  { id: 1, name: "たなか歯科クリニック", sub: "東京・渋谷区", initial: "田", gradient: "from-blue-400 to-teal-500", lastMsg: "見学の件、ご連絡ありがとうございます！ぜひお気軽に。", time: "14:32", unread: 2 },
-  { id: 2, name: "さくら歯科医院", sub: "大阪・中央区", initial: "木", gradient: "from-pink-400 to-rose-500", lastMsg: "ぜひ一度お話ししましょう😊", time: "昨日", unread: 0 },
-  { id: 3, name: "みなと総合歯科", sub: "神奈川・横浜市", initial: "鈴", gradient: "from-emerald-400 to-cyan-500", lastMsg: "いつでも見学お越しください！", time: "月曜日", unread: 1 },
-  { id: 4, name: "ほし矯正歯科", sub: "愛知・名古屋市", initial: "星", gradient: "from-violet-400 to-purple-500", lastMsg: "日程を調整しましょう✨", time: "先週", unread: 0 },
+const BASE_STUDENT_CHATS = [
+  { id: "s1", name: "たなか歯科クリニック", sub: "東京都・渋谷区", initial: "田", gradient: "from-blue-400 to-teal-500", lastMsg: "見学の件、ご連絡ありがとうございます！ぜひお気軽に。", time: "14:32", unread: 2 },
+  { id: "s2", name: "さくら歯科医院", sub: "大阪府・中央区", initial: "木", gradient: "from-pink-400 to-rose-500", lastMsg: "ぜひ一度お話ししましょう😊", time: "昨日", unread: 0 },
 ];
 
-const CLINIC_CHATS = [
-  { id: 1, name: "田中 花子", sub: "九州歯科大学 3年", initial: "田", gradient: "from-pink-400 to-rose-400", lastMsg: "見学よろしくお願いします！先日はありがとうございました。", time: "14:32", unread: 1 },
-  { id: 2, name: "山田 健太", sub: "東京医科歯科大学 5年", initial: "山", gradient: "from-blue-400 to-indigo-500", lastMsg: "ありがとうございます！日程の確認をさせてください。", time: "昨日", unread: 0 },
-  { id: 3, name: "佐藤 美月", sub: "大阪歯科大学 3年", initial: "佐", gradient: "from-purple-400 to-violet-500", lastMsg: "ぜひよろしくお願いします。楽しみにしています！", time: "火曜日", unread: 2 },
-  { id: 4, name: "高橋 あおい", sub: "福岡歯科大学 2年", initial: "高", gradient: "from-amber-400 to-orange-500", lastMsg: "いつでも大丈夫です😊", time: "先週", unread: 0 },
+const BASE_CLINIC_CHATS = [
+  { id: "c1", name: "田中 花子", sub: "九州歯科大学・3年", initial: "田", gradient: "from-pink-400 to-rose-400", lastMsg: "見学よろしくお願いします！先日はありがとうございました。", time: "14:32", unread: 1 },
+  { id: "c2", name: "山田 健太", sub: "東京医科歯科大学・5年", initial: "山", gradient: "from-blue-400 to-indigo-500", lastMsg: "ありがとうございます！日程の確認をさせてください。", time: "昨日", unread: 0 },
 ];
 
 export default function TalkListPage() {
-  const { mode } = useApp();
+  const { mode, matches } = useApp();
   const navigate = useNavigate();
-  const chats = mode === "clinic" ? CLINIC_CHATS : STUDENT_CHATS;
-  const totalUnread = chats.reduce((s, c) => s + c.unread, 0);
+
+  const baseChats = mode === "clinic" ? BASE_CLINIC_CHATS : BASE_STUDENT_CHATS;
+
+  // 動的マッチをベースの上に重複なく結合
+  const dynamicChats = matches.map((m) => ({ ...m, id: String(m.id) }));
+  const baseIds = new Set(baseChats.map((c) => c.id));
+  const allChats = [
+    ...dynamicChats,
+    ...baseChats.filter((c) => !dynamicChats.some((d) => d.name === c.name)),
+  ];
+
+  const totalUnread = allChats.reduce((s, c) => s + (c.unread || 0), 0);
+
+  const suffix = mode === "student" ? " 院長" : " さん";
 
   return (
     <div className="flex flex-col min-h-svh max-w-md mx-auto bg-gray-50">
-      {/* ヘッダー */}
       <header className="flex-shrink-0 px-4 pt-12 pb-4 bg-white border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div>
@@ -36,40 +43,36 @@ export default function TalkListPage() {
           </div>
           {totalUnread > 0 && (
             <span className="bg-teal-500 text-white text-xs font-black w-6 h-6 rounded-full flex items-center justify-center">
-              {totalUnread}
+              {totalUnread > 9 ? "9+" : totalUnread}
             </span>
           )}
         </div>
       </header>
 
-      {/* チャットリスト */}
       <div className="flex-1 overflow-y-auto pb-20">
-        {chats.length === 0 ? (
+        {allChats.length === 0 ? (
           <EmptyState mode={mode} navigate={navigate} />
         ) : (
           <div className="divide-y divide-gray-100 bg-white">
-            {chats.map((chat, i) => (
+            {allChats.map((chat, i) => (
               <motion.button
-                key={chat.id}
+                key={chat.id ?? i}
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
+                transition={{ delay: i * 0.04 }}
                 whileTap={{ backgroundColor: "#f9fafb" }}
-                onClick={() => navigate("/chat", { state: { partnerName: chat.name + (mode === "student" ? " 院長" : " さん") } })}
+                onClick={() => navigate("/chat", { state: { partnerName: chat.name + suffix } })}
                 className="w-full flex items-center gap-4 px-4 py-4 text-left"
               >
-                {/* アバター */}
                 <div className="relative flex-shrink-0">
-                  <div className={`w-13 h-13 w-[52px] h-[52px] rounded-full bg-gradient-to-br ${chat.gradient} flex items-center justify-center text-white text-xl font-bold shadow-sm`}>
+                  <div className={`w-[52px] h-[52px] rounded-full bg-gradient-to-br ${chat.gradient} flex items-center justify-center text-white text-xl font-bold shadow-sm`}>
                     {chat.initial}
                   </div>
-                  {/* オンラインドット */}
                   {chat.unread > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-teal-400 border-2 border-white rounded-full" />
                   )}
                 </div>
 
-                {/* 内容 */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between mb-0.5">
                     <p className="font-bold text-gray-900 text-sm truncate">{chat.name}</p>
@@ -81,7 +84,6 @@ export default function TalkListPage() {
                   </p>
                 </div>
 
-                {/* 未読バッジ */}
                 {chat.unread > 0 && (
                   <span className="flex-shrink-0 bg-teal-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">
                     {chat.unread}
@@ -92,7 +94,6 @@ export default function TalkListPage() {
           </div>
         )}
 
-        {/* マッチ促進バナー */}
         <div className="px-4 py-5">
           <motion.div
             initial={{ opacity: 0, y: 8 }}

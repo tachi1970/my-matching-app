@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 
-export function useActions(clinics, filterKey) {
+export function useActions(items, filterKey, { onMatch } = {}) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showMushi, setShowMushi] = useState(false);
   const [showMatch, setShowMatch] = useState(false);
+  const [showSuperMatch, setShowSuperMatch] = useState(false);
 
-  // フィルター変更時にインデックスをリセット
   useEffect(() => {
     setCurrentIndex(0);
     setShowMatch(false);
+    setShowSuperMatch(false);
   }, [filterKey]);
 
-  const current = clinics[currentIndex] ?? null;
-  const hasMore = currentIndex < clinics.length;
+  const current = items[currentIndex] ?? null;
+  const hasMore = currentIndex < items.length;
 
   function next() {
     setCurrentIndex((i) => i + 1);
@@ -23,6 +23,7 @@ export function useActions(clinics, filterKey) {
   }
 
   function like() {
+    if (current) onMatch?.(current);
     setShowMatch(true);
   }
 
@@ -32,27 +33,31 @@ export function useActions(clinics, filterKey) {
   }
 
   function superLike() {
-    setShowMushi(true);
-    setTimeout(() => {
-      setShowMushi(false);
-      next();
-    }, 1800);
+    if (current) onMatch?.(current);
+    setShowSuperMatch(true);
+  }
+
+  function dismissSuperMatch() {
+    setShowSuperMatch(false);
+    next();
   }
 
   function reset() {
     setCurrentIndex(0);
     setShowMatch(false);
+    setShowSuperMatch(false);
   }
 
   return {
     current,
     hasMore,
-    showMushi,
     showMatch,
+    showSuperMatch,
     skip,
     like,
     superLike,
     dismissMatch,
+    dismissSuperMatch,
     reset,
   };
 }

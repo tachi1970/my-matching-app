@@ -3,45 +3,27 @@ import { motion } from "framer-motion";
 import { useApp } from "../context/AppContext";
 import BottomTabBar from "../components/common/BottomTabBar";
 
-// デモ用固定モックデータ（名前・医院名はContextから上書き）
-const MOCK_STUDENT = {
-  matches: 4,
-  likes: 12,
-  schedule: [
-    { date: "6/15(土)", label: "たなか歯科クリニック", tag: "見学確定", color: "teal" },
-    { date: "6/22(日)", label: "さくら歯科医院", tag: "見学確定", color: "teal" },
-    { date: "7/5(土)", label: "ほし矯正歯科", tag: "交渉中", color: "amber" },
-  ],
-  matchedClinics: [
-    { name: "たなか歯科クリニック", area: "東京・渋谷区", initial: "田", gradient: "from-blue-400 to-teal-500", lastMsg: "見学の件、ご連絡ありがとうございます！" },
-    { name: "さくら歯科医院", area: "大阪・中央区", initial: "木", gradient: "from-pink-400 to-rose-500", lastMsg: "ぜひ一度お話ししましょう😊" },
-    { name: "みなと総合歯科", area: "神奈川・横浜市", initial: "鈴", gradient: "from-emerald-400 to-cyan-500", lastMsg: "いつでも見学お越しください！" },
-    { name: "ほし矯正歯科", area: "愛知・名古屋市", initial: "星", gradient: "from-violet-400 to-purple-500", lastMsg: "日程を調整しましょう✨" },
-  ],
-};
+const BASE_STUDENT_SCHEDULE = [
+  { date: "6/15(土)", label: "たなか歯科クリニック", tag: "見学確定", color: "teal" },
+  { date: "6/22(日)", label: "さくら歯科医院", tag: "見学確定", color: "teal" },
+  { date: "7/5(土)", label: "ほし矯正歯科", tag: "交渉中", color: "amber" },
+];
 
-const MOCK_CLINIC = {
-  scouts: 8,
-  matches: 3,
-  views: 142,
-  schedule: [
-    { date: "6/15(土)", label: "田中 花子さん", tag: "見学確定", color: "teal" },
-    { date: "6/20(金)", label: "山田 健太さん", tag: "交渉中", color: "amber" },
-    { date: "7/5(土)", label: "高橋 あおいさん", tag: "見学確定", color: "teal" },
-  ],
-  matchedStudents: [
-    { name: "田中 花子", univ: "九州歯科大学 3年", initial: "田", gradient: "from-pink-400 to-rose-400", lastMsg: "見学よろしくお願いします！" },
-    { name: "山田 健太", univ: "東京医科歯科大学 5年", initial: "山", gradient: "from-blue-400 to-indigo-500", lastMsg: "ありがとうございます！" },
-    { name: "佐藤 美月", univ: "大阪歯科大学 3年", initial: "佐", gradient: "from-purple-400 to-violet-500", lastMsg: "ぜひよろしくお願いします。" },
-  ],
-};
+const BASE_CLINIC_SCHEDULE = [
+  { date: "6/15(土)", label: "田中 花子さん", tag: "見学確定", color: "teal" },
+  { date: "6/20(金)", label: "山田 健太さん", tag: "交渉中", color: "amber" },
+  { date: "7/5(土)", label: "高橋 あおいさん", tag: "見学確定", color: "teal" },
+];
+
+const BASE_CLINIC_VIEWS = 142;
+const BASE_CLINIC_SCOUTS = 8;
 
 function fade(delay = 0) {
   return { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { delay, duration: 0.3 } };
 }
 
 export default function HomePage() {
-  const { mode, studentProfile, clinicProfile } = useApp();
+  const { mode, studentProfile, clinicProfile, matches, likeCount } = useApp();
   const navigate = useNavigate();
 
   const sInitial = studentProfile.lastName?.[0] || "田";
@@ -51,7 +33,6 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-svh max-w-md mx-auto bg-gray-50">
-      {/* ヘッダー */}
       <header className="flex-shrink-0 flex items-center justify-between px-4 pt-12 pb-4 bg-white border-b border-gray-100">
         <div>
           <p className="text-xs text-gray-400 font-medium">
@@ -70,8 +51,8 @@ export default function HomePage() {
 
       <div className="flex-1 overflow-y-auto px-4 py-4 pb-20 space-y-4">
         {mode === "student"
-          ? <StudentHome navigate={navigate} profile={studentProfile} />
-          : <ClinicHome navigate={navigate} profile={clinicProfile} />}
+          ? <StudentHome navigate={navigate} profile={studentProfile} matches={matches} likeCount={likeCount} />
+          : <ClinicHome navigate={navigate} profile={clinicProfile} matches={matches} likeCount={likeCount} />}
       </div>
 
       <BottomTabBar />
@@ -79,11 +60,7 @@ export default function HomePage() {
   );
 }
 
-// ────────────────────────────
-// 学生ホーム
-// ────────────────────────────
-function StudentHome({ navigate, profile }) {
-  const d = MOCK_STUDENT;
+function StudentHome({ navigate, profile, matches, likeCount }) {
   const fullName = `${profile.lastName || "田中"} ${profile.firstName || "花子"}`;
   const univLabel = profile.university
     ? `${profile.university}${profile.year ? ` ${profile.year}年` : ""}`
@@ -91,9 +68,35 @@ function StudentHome({ navigate, profile }) {
   const initial = profile.lastName?.[0] || "田";
   const major = profile.major || "歯学科";
 
+  const totalMatches = matches.length + 4;
+  const totalLikes = likeCount + 12;
+
+  // 動的マッチをスケジュールに追加（最新2件まで）
+  const dynamicSchedule = matches.slice(0, 2).map((m) => ({
+    date: "たった今",
+    label: m.name,
+    tag: "マッチ成立",
+    color: "teal",
+  }));
+  const schedule = [...dynamicSchedule, ...BASE_STUDENT_SCHEDULE].slice(0, 4);
+
+  // マッチした医院一覧
+  const dynamicClinics = matches.map((m) => ({
+    name: m.name,
+    area: m.sub,
+    initial: m.initial,
+    gradient: m.gradient,
+    lastMsg: m.lastMsg,
+  }));
+  const baseClinics = [
+    { name: "たなか歯科クリニック", area: "東京都・渋谷区", initial: "田", gradient: "from-blue-400 to-teal-500", lastMsg: "見学の件、ご連絡ありがとうございます！" },
+    { name: "さくら歯科医院", area: "大阪府・中央区", initial: "木", gradient: "from-pink-400 to-rose-500", lastMsg: "ぜひ一度お話ししましょう😊" },
+    { name: "みなと総合歯科", area: "神奈川・横浜市", initial: "鈴", gradient: "from-emerald-400 to-cyan-500", lastMsg: "いつでも見学お越しください！" },
+  ];
+  const allClinics = [...dynamicClinics, ...baseClinics.filter((b) => !dynamicClinics.some((d) => d.name === b.name))].slice(0, 5);
+
   return (
     <>
-      {/* プロフィールカード */}
       <motion.div {...fade(0)} className="bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-400 to-emerald-400 flex items-center justify-center text-white text-2xl font-bold shadow-sm flex-shrink-0">
@@ -107,19 +110,17 @@ function StudentHome({ navigate, profile }) {
             </span>
           </div>
         </div>
-        {/* ステータスバー */}
         <div className="grid grid-cols-3 gap-2 pt-3 border-t border-gray-100">
-          <StatPill label="マッチ" value={d.matches} color="teal" />
-          <StatPill label="いいね送信" value={d.likes} color="rose" />
-          <StatPill label="見学予定" value={d.schedule.length} color="amber" />
+          <StatPill label="マッチ" value={totalMatches} color="teal" />
+          <StatPill label="いいね送信" value={totalLikes} color="rose" />
+          <StatPill label="見学予定" value={schedule.length} color="amber" />
         </div>
       </motion.div>
 
-      {/* 見学スケジュール */}
       <motion.div {...fade(0.06)}>
         <SectionTitle>📅 見学スケジュール</SectionTitle>
         <div className="space-y-2">
-          {d.schedule.map((s, i) => (
+          {schedule.map((s, i) => (
             <div key={i} className="bg-white rounded-xl px-4 py-3 flex items-center justify-between shadow-sm border border-gray-100">
               <div>
                 <p className="text-xs text-gray-400 font-medium">{s.date}</p>
@@ -137,11 +138,10 @@ function StudentHome({ navigate, profile }) {
         </div>
       </motion.div>
 
-      {/* マッチした医院一覧 */}
       <motion.div {...fade(0.1)}>
         <SectionTitle>🏥 マッチした医院</SectionTitle>
         <div className="space-y-2">
-          {d.matchedClinics.map((c, i) => (
+          {allClinics.map((c, i) => (
             <button
               key={i}
               onClick={() => navigate("/chat", { state: { partnerName: `${c.name} 院長` } })}
@@ -160,12 +160,11 @@ function StudentHome({ navigate, profile }) {
         </div>
       </motion.div>
 
-      {/* クイックアクション */}
       <motion.div {...fade(0.14)}>
         <SectionTitle>⚡ クイックアクション</SectionTitle>
         <div className="grid grid-cols-2 gap-2">
           <QuickAction icon="🔍" label="医院を探す" sub="エリアから検索" onClick={() => navigate("/search")} color="teal" />
-          <QuickAction icon="💬" label="トークを開く" sub={`${d.matches}件のマッチ`} onClick={() => navigate("/talk")} color="violet" />
+          <QuickAction icon="💬" label="トークを開く" sub={`${totalMatches}件のマッチ`} onClick={() => navigate("/talk")} color="violet" />
           <QuickAction icon="📊" label="全国マップ" sub="登録状況を確認" onClick={() => navigate("/dashboard")} color="blue" />
           <QuickAction icon="👤" label="マイページ" sub="設定・プロフィール" onClick={() => navigate("/mypage")} color="gray" />
         </div>
@@ -174,12 +173,7 @@ function StudentHome({ navigate, profile }) {
   );
 }
 
-
-// ────────────────────────────
-// 医院ホーム
-// ────────────────────────────
-function ClinicHome({ navigate, profile }) {
-  const d = MOCK_CLINIC;
+function ClinicHome({ navigate, profile, matches, likeCount }) {
   const clinicName = profile.name || "たなか歯科クリニック";
   const directorName = profile.directorName || "田中 誠一";
   const areaLabel = profile.prefecture
@@ -187,9 +181,34 @@ function ClinicHome({ navigate, profile }) {
     : "東京都 渋谷区";
   const initial = profile.directorName?.[0] || "田";
 
+  const totalMatches = matches.length + 3;
+  const totalScouts = likeCount + BASE_CLINIC_SCOUTS;
+  const views = BASE_CLINIC_VIEWS + matches.length * 12;
+
+  const dynamicSchedule = matches.slice(0, 2).map((m) => ({
+    date: "たった今",
+    label: `${m.name} さん`,
+    tag: "マッチ成立",
+    color: "teal",
+  }));
+  const schedule = [...dynamicSchedule, ...BASE_CLINIC_SCHEDULE].slice(0, 4);
+
+  const dynamicStudents = matches.map((m) => ({
+    name: m.name,
+    univ: m.sub,
+    initial: m.initial,
+    gradient: m.gradient,
+    lastMsg: m.lastMsg,
+  }));
+  const baseStudents = [
+    { name: "田中 花子", univ: "九州歯科大学 3年", initial: "田", gradient: "from-pink-400 to-rose-400", lastMsg: "見学よろしくお願いします！" },
+    { name: "山田 健太", univ: "東京医科歯科大学 5年", initial: "山", gradient: "from-blue-400 to-indigo-500", lastMsg: "ありがとうございます！" },
+    { name: "佐藤 美月", univ: "大阪歯科大学 3年", initial: "佐", gradient: "from-purple-400 to-violet-500", lastMsg: "ぜひよろしくお願いします。" },
+  ];
+  const allStudents = [...dynamicStudents, ...baseStudents.filter((b) => !dynamicStudents.some((d) => d.name === b.name))].slice(0, 5);
+
   return (
     <>
-      {/* 医院カード */}
       <motion.div {...fade(0)} className="bg-white rounded-2xl shadow-sm p-4 border border-gray-100">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-teal-500 flex items-center justify-center text-white text-2xl font-bold shadow-sm flex-shrink-0">
@@ -202,17 +221,16 @@ function ClinicHome({ navigate, profile }) {
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2 pt-3 border-t border-gray-100">
-          <StatPill label="マッチ" value={d.matches} color="teal" />
-          <StatPill label="スカウト" value={d.scouts} color="violet" />
-          <StatPill label="プロフ閲覧" value={d.views} color="blue" />
+          <StatPill label="マッチ" value={totalMatches} color="teal" />
+          <StatPill label="スカウト" value={totalScouts} color="violet" />
+          <StatPill label="プロフ閲覧" value={views} color="blue" />
         </div>
       </motion.div>
 
-      {/* 見学スケジュール */}
       <motion.div {...fade(0.06)}>
         <SectionTitle>📅 見学スケジュール</SectionTitle>
         <div className="space-y-2">
-          {d.schedule.map((s, i) => (
+          {schedule.map((s, i) => (
             <div key={i} className="bg-white rounded-xl px-4 py-3 flex items-center justify-between shadow-sm border border-gray-100">
               <div>
                 <p className="text-xs text-gray-400 font-medium">{s.date}</p>
@@ -230,11 +248,10 @@ function ClinicHome({ navigate, profile }) {
         </div>
       </motion.div>
 
-      {/* マッチした学生 */}
       <motion.div {...fade(0.1)}>
         <SectionTitle>🎓 マッチした学生</SectionTitle>
         <div className="space-y-2">
-          {d.matchedStudents.map((s, i) => (
+          {allStudents.map((s, i) => (
             <button
               key={i}
               onClick={() => navigate("/chat", { state: { partnerName: `${s.name} さん` } })}
@@ -253,12 +270,11 @@ function ClinicHome({ navigate, profile }) {
         </div>
       </motion.div>
 
-      {/* クイックアクション */}
       <motion.div {...fade(0.14)}>
         <SectionTitle>⚡ クイックアクション</SectionTitle>
         <div className="grid grid-cols-2 gap-2">
           <QuickAction icon="🔍" label="学生を探す" sub="スワイプして選ぶ" onClick={() => navigate("/clinic")} color="violet" />
-          <QuickAction icon="💬" label="トークを開く" sub={`${d.matches}件のマッチ`} onClick={() => navigate("/talk")} color="teal" />
+          <QuickAction icon="💬" label="トークを開く" sub={`${totalMatches}件のマッチ`} onClick={() => navigate("/talk")} color="teal" />
           <QuickAction icon="📊" label="全国マップ" sub="エリア分析" onClick={() => navigate("/dashboard")} color="blue" />
           <QuickAction icon="💴" label="プランを確認" sub="アップグレード" onClick={() => navigate("/pricing")} color="amber" />
         </div>
@@ -267,9 +283,6 @@ function ClinicHome({ navigate, profile }) {
   );
 }
 
-// ────────────────────────────
-// 小コンポーネント
-// ────────────────────────────
 function SectionTitle({ children }) {
   return <p className="text-sm font-black text-gray-700 mb-2">{children}</p>;
 }

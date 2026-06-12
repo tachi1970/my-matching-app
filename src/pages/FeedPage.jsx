@@ -3,9 +3,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { mockClinics, CLINIC_FEATURE_TAGS } from "../data/mockClinics";
 import { useActions } from "../hooks/useActions";
 import { useClinicFilters } from "../hooks/useFilters";
+import { useApp } from "../context/AppContext";
 import ClinicCard from "../components/clinic/ClinicCard";
 import BottomActionBar from "../components/common/BottomActionBar";
-import MushiPopup from "../components/animations/MushiPopup";
 import MatchPopup from "../components/animations/MatchPopup";
 import Header from "../components/common/Header";
 import FilterPanel from "../components/common/FilterPanel";
@@ -14,14 +14,13 @@ import BottomTabBar from "../components/common/BottomTabBar";
 export default function FeedPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { addMatch, addLike } = useApp();
   const prefecture = location.state?.prefecture;
 
-  // 都道府県で絞り込み
   const prefFiltered = prefecture
     ? mockClinics.filter((c) => c.prefecture === prefecture)
     : mockClinics;
 
-  // タグフィルター
   const {
     filtered,
     filterKey,
@@ -36,22 +35,29 @@ export default function FeedPage() {
   const {
     current,
     hasMore,
-    showMushi,
     showMatch,
+    showSuperMatch,
     skip,
     like,
     superLike,
     dismissMatch,
+    dismissSuperMatch,
     reset,
-  } = useActions(filtered, filterKey);
+  } = useActions(filtered, filterKey, {
+    onMatch: (clinic) => {
+      addMatch(clinic);
+      addLike();
+    },
+  });
 
-  function handleGoToChat() {
-    navigate("/chat", { state: { partnerName: `${current?.name} 院長` } });
+  function handleGoToChat(isSuperLike = false) {
+    navigate("/chat", {
+      state: { partnerName: `${current?.name} 院長`, isSuperLike },
+    });
   }
 
-  const isBlocked = !hasMore || !current || showMushi || showMatch;
+  const isBlocked = !hasMore || !current || showMatch || showSuperMatch;
 
-  // FilterPanel のグループ定義
   const filterGroups = [
     {
       label: "募集対象",
@@ -86,7 +92,6 @@ export default function FeedPage() {
         </div>
       )}
 
-      {/* フィルターパネル */}
       <FilterPanel
         groups={filterGroups}
         activeCount={activeCount}
@@ -94,7 +99,6 @@ export default function FeedPage() {
         accentColor="teal"
       />
 
-      {/* カードエリア */}
       <div className="flex-1 relative overflow-hidden">
         {hasMore && current ? (
           <AnimatePresence mode="wait">
@@ -124,13 +128,24 @@ export default function FeedPage() {
         disabled={isBlocked}
       />
 
-      <MushiPopup visible={showMushi} />
+      {/* 通常マッチ */}
       <MatchPopup
         visible={showMatch}
         partnerName={current?.name ?? ""}
-        onGoToChat={handleGoToChat}
+        onGoToChat={() => handleGoToChat(false)}
         onDismiss={dismissMatch}
+        isSuperLike={false}
       />
+
+      {/* スーパーマッチ */}
+      <MatchPopup
+        visible={showSuperMatch}
+        partnerName={current?.name ?? ""}
+        onGoToChat={() => handleGoToChat(true)}
+        onDismiss={dismissSuperMatch}
+        isSuperLike={true}
+      />
+
       <BottomTabBar />
     </div>
   );
